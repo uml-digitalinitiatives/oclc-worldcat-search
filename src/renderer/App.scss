@@ -1,0 +1,205 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+body {
+  position: relative;
+  color: black;
+  height: 100%;
+  width: 100%;
+  font-family: sans-serif;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  background-color: gray;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  appearance: none;
+  font-size: 1.3rem;
+  box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
+    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+  transition: all ease-in 0.1s;
+  cursor: pointer;
+  opacity: 0.9;
+  &:hover {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+label {
+  margin: 0px 4px;
+}
+
+.link {
+  color: black;
+  font-weight: bold;
+  font-size: 1.2em;
+  padding: 4px;
+  &:hover,
+  &.active
+  {
+    background-color: rgb(151, 175, 247);
+    border-radius: 5px;
+  }
+  &.active:hover {
+    cursor: default;
+  }
+}
+
+a {
+  text-decoration: none;
+  height: fit-content;
+  width: fit-content;
+  margin: 10px;
+  &:hover {
+    opacity: 1;
+    text-decoration: none;
+  }
+}
+
+.inactive {
+  display: none;
+}
+
+.error {
+  border: 2px solid red;
+  padding: 0.3em;
+  width: fit-content;
+}
+.success {
+  border: 2px solid green;
+  padding: 0.3em;
+  width: fit-content;
+}
+
+button {
+  margin: 0px 2px;
+}
+
+.mini-link {
+  cursor: pointer;
+  color: royalblue;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+#login {
+  border-top: 1px solid black;
+}
+
+#search {
+  border-top: 1px solid black;
+  width: 100%;
+ }
+
+.selectTypes {
+  cursor: pointer;
+  padding: 3px;
+  margin: 0 3px;
+  &.selected {
+    border-bottom: 2px solid royalblue;
+  }
+  &:hover
+  {
+    background-color: rgb(151, 175, 247);
+    border-radius: 5px;
+  }
+}
+
+.suggestions,
+.no-suggestions {
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  z-index: 1;
+  left: 3em;
+  margin: 0px;
+  padding: 0px;
+}
+.no-suggestions {
+  padding: 5px;
+}
+.suggestions li {
+  padding: 5px;
+  border-bottom: 1px solid black;
+  cursor: pointer;
+  .suggestions-active,
+  &:hover {
+    background-color: lightgray;
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.data_table {
+  table {
+    display: table;
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    tr {
+      display: table-row;
+      &:nth-child(2n+2) {
+        background-color: lightgray;
+      }
+      td {
+        display: table-cell;
+        padding: 4px 5px;
+        text-align: center;
+      }
+    }
+    th {
+      padding: 0 5px;
+      border-bottom: 1px solid black;
+    }
+  }
+  &.single_search h2,
+  &.batch_search table .header-row {
+    position: sticky;
+    top: 0;
+    background-color: #ffffff;
+    border-bottom: 1px solid black;
+    margin-bottom: 0.3em;
+    z-index: 2;
+  }
+}
+
+.result-record {
+  border-bottom: 1px solid black;
+}
+
+#working {
+  position: absolute;
+  z-index: 9;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.working_overlay {
+  position: relative;
+  top: 50svh;
+  left: 50svw;
+  width: fit-content;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
+    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+}
+
+img.working {
+  width: 150px;
+  height: 150px;
+  margin: 0px;
+  padding: 0px;
+}
