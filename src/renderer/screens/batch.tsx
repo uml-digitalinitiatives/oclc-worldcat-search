@@ -1,4 +1,4 @@
-import { useContext, useState, MouseEvent as ReactMouseEvent } from "react";
+import { useContext, useState, MouseEvent as ReactMouseEvent, ChangeEvent as ReactChangeEvent } from "react";
 import Navigation from "./navigation";
 import { AppRecordsContext, AppRecordsDispatchContext, RecordsActionSchema, RecordsSchema } from "../context/RecordsContext";
 import { CellAddress, WorkSheet, utils as XLSXUtils, read as XLSX_read } from "xlsx";
@@ -14,6 +14,22 @@ export default function BatchForm() {
   const [ status, setStatus ] = useState({type: '', message: ''});
   const [ working, setWorking ] = useState(false);
   const [ displayHelp, setDisplayHelp ] = useState(false);
+  const [ filterLocal, setFilterLocal ] = useState(false);
+
+  const filter_local_key = "filter_local";
+  // Set the filter local checkbox value to the stored value from previous sessions.
+  window.electron.getStore(filter_local_key).then((value) => {
+    if (value !== undefined) {
+      setFilterLocal(value as boolean);
+    }
+  });
+
+  // function to store the filter local checkbox value for future sessions based on a change to the checkbox.
+  const changeFilterLocal = (evt: ReactChangeEvent<HTMLInputElement>) => {
+    const checked = evt.currentTarget.checked;
+    setFilterLocal(checked);
+    window.electron.setStore(filter_local_key, checked);
+  };
   
   /**
    * @returns The working in progress image
@@ -167,7 +183,7 @@ export default function BatchForm() {
   const saveSpreadsheet = (evt: ReactMouseEvent<HTMLButtonElement, MouseEvent>) => {
     evt.preventDefault();
     // Make array of arrays with headers and data
-    const outputData = [briefRecordJsonHeaders].concat(recordsContext.records.flatMap((record) => formatBriefRecordToJson(record)));
+    const outputData = [briefRecordJsonHeaders].concat(recordsContext.records.flatMap((record) => formatBriefRecordToJson(record, filterLocal)));
     window.electron.exportFile(outputData).then((filepath: string|undefined) => {
       if (filepath === undefined) {
         return;
@@ -207,6 +223,30 @@ export default function BatchForm() {
         <p><i>Choose file</i> to select the spreadsheet and then click <i>Upload</i>. It will immediately start processing.</p>
         <p>Once complete you will see records displayed below and two
         new buttons <i>Save Data</i> and <i>Clear Data</i>.</p>
+        <p><b>Save Data</b> will prompt to save the data to a new Excel spreadsheet. Each row will contain</p>
+        <ul>
+          <li>MMS ID</li>
+          <li>OCLC Number</li>
+          <li>Title</li>
+          <li>Creator</li>
+          <li>Date</li>
+          <li>Language</li>
+          <li>General Format</li>
+          <li>Specific Format</li>
+          <li>Edition</li>
+          <li>Publisher</li>
+          <li>Publication Place</li>
+          <li>Merged Oclc Numbers</li>
+          <li>ISBNs</li>
+          <li>ISSNs</li>
+          <li>Institution Name</li>
+          <li>OCLC Symbol</li>
+          <li>Registry Id</li>
+          <li>Country</li>
+          <li>State</li>
+          <li>ILL Status</li>
+          <li>Institution Type</li>
+        </ul>
         </>
     ) : (
       <p><a className="mini-link" onClick={() => setDisplayHelp(!displayHelp)}>Show Help</a></p>
@@ -231,6 +271,7 @@ export default function BatchForm() {
             {recordsContext.records.length > 0 && <button onClick={(evt) => saveSpreadsheet(evt)}>Save Data</button>}
             {recordsContext.records.length > 0 && <button onClick={(evt) => clear(evt)}>Clear Data</button>}
             </p>
+            {recordsContext.records.length > 0 && <p><input onChange={(evt) => changeFilterLocal(evt)} type="checkbox" checked={filterLocal} name="filterLocal" /> Filter local holdings from output.</p>}
           </form>
           { working && WorkInProgress() }
           <RecordList />

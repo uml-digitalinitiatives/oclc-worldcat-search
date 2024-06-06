@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, dialog, FileFilter, SaveDialogReturnValue } from 'electron';
+import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import log from 'electron-log';
 import ElectronStore from 'electron-store';
 import MenuBuilder from './menu';
@@ -30,7 +30,6 @@ const APP_CLIENT_WSKEY = 'VO2qsUtIWQHI7N39EIKblovaTb1Yjh2VVGN5IXfTlzMp9jcdKEGSQ5
 const OCLC_OAUTH_ACCESS_TOKEN_ARG = "oclc_oauth_token"; // key for the OCLC OAuth access token
 const OCLC_ACCESS_TOKEN_URL = "https://oauth.oclc.org/token";
 const oauth_access_token_url = new URL(OCLC_ACCESS_TOKEN_URL);
-
 
 let mainWindow: BrowserWindow | null = null;
 let authWindow: BrowserWindow | null = null; // Window for OAuth

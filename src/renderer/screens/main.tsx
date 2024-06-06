@@ -10,7 +10,10 @@ export default function MainScreen() {
     console.error(err.message);
   });
 
-  const login = () => {
+  /**
+   * Do the login to OCLC via Oauth
+   */
+  const login = async () => {
     window.electron.login().then(() => {
       window.electron.isLoggedIn().then((code) => {
         console.log(code);
@@ -23,9 +26,14 @@ export default function MainScreen() {
     });
   }
 
+  /**
+   * Check if the user is logged in and display the correct message.
+   * @param props The authState
+   * @returns The correct message
+   */
   function LoginCheck(props: {authState: boolean}) {
     return (props.authState) ? (
-      <p>Already logged in</p>
+      <p className='bordered'>Already logged in</p>
     ) : (
         <>
         <p>Click the button below to login to OCLC and authorize this tool on your behalf.</p>
@@ -46,7 +54,7 @@ export default function MainScreen() {
       </div>
       <div id="login">
         <h3>Login</h3>
-        <p>You will require a U of M Libraries instituional account with Worldcat to use this tool. You will be asked to login to WorldCat and then <b>Allow</b> access
+        <p>You will require a U of M Libraries institutional account with Worldcat to use this tool. You will be asked to login to WorldCat and then <b>Allow</b> access
          to the Search API. You should only need to log in approximately once per week.</p>
         <LoginCheck authState={authState}/>
       </div>

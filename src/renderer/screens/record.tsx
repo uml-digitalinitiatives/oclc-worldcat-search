@@ -44,6 +44,7 @@ export default function RecordList() {
   return (recordsContext.records.length == 0) ?  (<></>) : (
     <div id="search_results" className="data_table batch_search">
       <h2>Records</h2>
+      <p>{recordsContext.records.length} records found.</p>
       <table>
         <thead>
           <tr className="header-row">
@@ -81,9 +82,7 @@ export default function RecordList() {
 export function SingleSearchRecords(props: { processed: boolean }) {
   const recordsContext = useContext(AppRecordsContext) as RecordsSchema;
 
-  if (recordsContext.records.length === 0 && props.processed) {
-    return <p>No records found</p>;
-  } else if (recordsContext.records.length > 0) {
+  if (recordsContext.records.length > 0) {
     return (
       <SingleSearchRecordList />
     )
@@ -145,6 +144,7 @@ export function SingleSearchRecords(props: { processed: boolean }) {
       return (
         <div id="search_results" className="data_table single_search">
           <h2>Records</h2>
+          <p>{recordsContext.records.length} records found.</p>
           {recordsContext.records.map((record: BriefRecordInterface) => (
             <div key={record.oclcNumber} className='result-record'>
               <h3>{record.title}</h3>
