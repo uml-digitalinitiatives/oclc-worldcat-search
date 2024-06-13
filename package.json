@@ -99,7 +99,7 @@
     "react-data-grid": "^7.0.0-beta.44",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "file:vendor/xlsx-0.20.2.tgz"
   },
   "devDependencies": {
     "@electron/notarize": "^2.1.0",
@@ -193,7 +193,9 @@
       "entitlementsInherit": "assets/entitlements.mac.plist",
       "gatekeeperAssess": false,
       "notarize": false,
-      "publish": ["github"]
+      "publish": [
+        "github"
+      ]
     },
     "dmg": {
       "contents": [
@@ -213,7 +215,9 @@
       "target": [
         "nsis"
       ],
-      "publish": ["github"]
+      "publish": [
+        "github"
+      ]
     },
     "linux": {
       "target": [
