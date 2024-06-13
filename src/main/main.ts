@@ -25,11 +25,6 @@ export default class AppUpdater {
     log.transports.file.level = "debug"
     autoUpdater.logger = log
     autoUpdater.autoDownload = true;
-    autoUpdater.setFeedURL({
-      provider: "github",
-      owner: "uml-digitalinitiatives",
-      repo: "oclc-worldcat-search",
-    });
     autoUpdater.on('checking-for-update', function () {
       console.log('Checking for update...');
     });

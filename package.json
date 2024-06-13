@@ -192,7 +192,8 @@
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
       "gatekeeperAssess": false,
-      "notarize": false
+      "notarize": false,
+      "publish": ["github"]
     },
     "dmg": {
       "contents": [
@@ -211,7 +212,8 @@
     "win": {
       "target": [
         "nsis"
-      ]
+      ],
+      "publish": ["github"]
     },
     "linux": {
       "target": [
@@ -230,7 +232,7 @@
     "publish": {
       "provider": "github",
       "owner": "uml-digitalinitiatives",
-      "repo": "OCLC-WorldCat-Holdings-Search"
+      "repo": "oclc-worldcat-search"
     }
   },
   "devEngines": {
