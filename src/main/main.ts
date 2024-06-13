@@ -18,6 +18,29 @@ import { exportFile, getBibHoldings } from './backend_actions';
 import axios from 'axios';
 import { TokenType } from './constants_types';
 import { createFileRoute } from 'electron-router-dom';
+import { autoUpdater } from 'electron-updater';
+
+export default class AppUpdater {
+  constructor() {
+    log.transports.file.level = "debug"
+    autoUpdater.logger = log
+    autoUpdater.autoDownload = true;
+    autoUpdater.setFeedURL({
+      provider: "github",
+      owner: "uml-digitalinitiatives",
+      repo: "oclc-worldcat-search",
+    });
+    autoUpdater.on('checking-for-update', function () {
+      console.log('Checking for update...');
+    });
+
+    autoUpdater.on('error', function (err) {
+      console.log('AppUpdater Error in auto-updater: ' + err.message);
+    });
+
+    autoUpdater.checkForUpdatesAndNotify()
+  }
+}
 
 const Store = require('electron-store');
 const store: ElectronStore = new Store();
@@ -34,6 +57,7 @@ const oauth_access_token_url = new URL(OCLC_ACCESS_TOKEN_URL);
 let mainWindow: BrowserWindow | null = null;
 let authWindow: BrowserWindow | null = null; // Window for OAuth
 
+// Handle javascript source maps in production
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
@@ -46,6 +70,7 @@ if (isDebug) {
   require('electron-debug')();
 }
 
+// Install developer extensions.
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -59,11 +84,13 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+// Configure log settings.
 const setupLog = () => {
   log.transports.file.resolvePath = () => path.join(app.getPath('logs'), 'main.log');
   log.transports.file.level = 'info';
 };
 
+// Create the main window.
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -126,8 +153,12 @@ const createWindow = async () => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
+
+  // App auto-updater
+  new AppUpdater();
 };
 
+// Create the OAuth window.
 const createAuthWindow = async () => {
   if (authWindow !== null) {
     authWindow.destroy();
@@ -217,6 +248,7 @@ app.on('window-all-closed', () => {
   }
 });
 
+// When ready actions.
 app
   .whenReady()
   .then(() => {

@@ -1,21 +1,20 @@
 /* eslint import/prefer-default-export: off */
 import { URL } from 'url';
-import path from 'path';
 import { createURLRoute } from 'electron-router-dom';
 import { getRandomValues, subtle } from 'crypto';
 
+/**
+ * Generate a development URL for the html file.
+ * @param htmlFileName Get the path to the html file.
+ * @param route_id The route ID.
+ * @returns The URL
+ */
 export function resolveHtmlPath(htmlFileName: string, route_id: string) {
-  if (process.env.NODE_ENV === 'development') {
-    const port = process.env.PORT || 1212;
-    const url = new URL(`http://localhost:${port}`);
-    url.pathname = htmlFileName;
-    return createURLRoute(
-      url.href,
-      route_id
-    );
-  }
+  const port = process.env.PORT || 1212;
+  const url = new URL(`http://localhost:${port}`);
+  url.pathname = htmlFileName;
   return createURLRoute(
-    `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}`,
+    url.href,
     route_id
   );
 }

@@ -1,12 +1,11 @@
 {
-  "name": "electron-react-boilerplate",
-  "version": "4.6.0",
-  "description": "A foundation for scalable desktop apps",
+  "name": "worldcat-holdings-search",
+  "version": "1.0.0",
+  "description": "A tool to search WorldCat and retrieve bibliographic and holdings information.",
   "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
+    "name": "University of Manitoba Libraries",
+    "email": "Jared.Whiklo@umanitoba.ca"
   },
   "main": "./dist/main/main.js",
   "scripts": {

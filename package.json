@@ -1,35 +1,23 @@
 {
-  "description": "A foundation for scalable desktop apps",
+  "name": "worldcat-holdings-search",
+  "version": "1.0.0",
+  "description": "A tool to search WorldCat and retrieve bibliographic and holdings information.",
   "keywords": [
     "electron",
-    "boilerplate",
-    "react",
-    "typescript",
-    "ts",
-    "sass",
-    "webpack",
-    "hot",
-    "reload"
+    "libraries",
+    "OCLC",
+    "worldcat",
+    "bibliographic",
+    "holdings"
   ],
-  "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
-  "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
-  },
   "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "name": "University of Manitoba Libraries"
   },
   "contributors": [
     {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
-      "url": "https://github.com/amilajack"
+      "name": "Jared Whiklo",
+      "email": "Jared.Whiklo@umanitoba.ca"
     }
   ],
   "main": "./src/main/main.ts",
@@ -203,7 +191,8 @@
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
-      "gatekeeperAssess": false
+      "gatekeeperAssess": false,
+      "notarize": false
     },
     "dmg": {
       "contents": [
@@ -241,7 +230,7 @@
     "publish": {
       "provider": "github",
       "owner": "uml-digitalinitiatives",
-      "repo": "OCLC-WorldCat-Search"
+      "repo": "OCLC-WorldCat-Holdings-Search"
     }
   },
   "devEngines": {
