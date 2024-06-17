@@ -15,7 +15,7 @@ export function resolveHtmlPath(htmlFileName: string, route_id: string) {
   url.pathname = htmlFileName;
   return createURLRoute(
     url.href,
-    route_id
+    route_id,
   );
 }
 
@@ -25,15 +25,15 @@ export function resolveHtmlPath(htmlFileName: string, route_id: string) {
  * @returns The hex string.
  */
 function dec2hex(dec: number) {
-  const hex = '0' + dec.toString(16);
-  return hex.substring(hex.length-2);
+  const hex = `0${dec.toString(16)}`;
+  return hex.substring(hex.length - 2);
 }
 
 /**
  * @returns A random string of hex characters.
  */
 export function generateRandomString(): string {
-  let array = new Uint32Array(56/2);
+  const array = new Uint32Array(56 / 2);
   getRandomValues(array);
   return Array.from(array, dec2hex).join('');
 }
@@ -55,16 +55,16 @@ function sha256(plain: string): Promise<ArrayBuffer> {
  * @returns The encoded string.
  */
 function base64urlencode(buffer: ArrayBuffer) {
-  let str = "";
+  let str = '';
   const bytes = new Uint8Array(buffer);
   const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
+  for (let i = 0; i < len; i += 1) {
     str += String.fromCharCode(bytes[i]);
   }
   return Buffer.from(str, 'binary').toString('base64')
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 }
 
 /**
@@ -72,6 +72,8 @@ function base64urlencode(buffer: ArrayBuffer) {
  * @param verifer The verifier to generate a challenge from.
  * @returns The base64 encoded challenge.
  */
-export async function challenge_from_verifier(verifer: string): Promise<string> {
-  return await sha256(verifer).then((buffer) => {return base64urlencode(buffer);}).catch((error) => {throw error;});
+export async function challengeFromVerifier(verifer: string): Promise<string> {
+  return sha256(verifer).then(
+    (buffer) => base64urlencode(buffer),
+  ).catch((error) => { throw error; });
 }

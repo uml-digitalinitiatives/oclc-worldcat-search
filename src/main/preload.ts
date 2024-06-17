@@ -8,9 +8,9 @@ const electronHandler = {
     ipcRenderer.send('store:set', key, value);
   },
   getStore(key: string) {
-     return ipcRenderer.invoke('store:get', key);
+    return ipcRenderer.invoke('store:get', key);
   },
-  exportFile(file: string[][]): Promise<string|undefined> {
+  exportFile(file: string[][]): Promise<string | undefined> {
     return ipcRenderer.invoke('file:export', file);
   },
   getBibHoldings(query: string, mmsId: string = ''): Promise<Array<BriefRecordInterface>> {
@@ -21,7 +21,10 @@ const electronHandler = {
   },
   login() {
     return ipcRenderer.invoke('auth:login');
-  }
+  },
+  logout() {
+    return ipcRenderer.send('auth:logout');
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

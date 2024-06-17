@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
 class FilterFormatType {
-  name: string = '';
-  
-  code: string = '';
+  name = '';
 
-  constructor ({ name, code }: { name: string; code: string }) {
+  code = '';
+
+  constructor({ name, code }: { name: string; code: string }) {
     this.name = name;
     this.code = code;
   }
@@ -212,7 +212,7 @@ const FilterFormats: FilterFormatType[] = [
   }),
   new FilterFormatType({
     name: 'Video - Film',
-    code: 'video - film'
+    code: 'video - film',
   }),
   new FilterFormatType({
     name: 'Video - Bluray',
@@ -241,8 +241,39 @@ const FilterFormats: FilterFormatType[] = [
   new FilterFormatType({
     name: 'Web',
     code: 'web -',
-  })
+  }),
 ];
+
+function FormatList({
+  filteredSuggestionsArg,
+  activeSuggestionIndexArg,
+  onClickMethod,
+  onKeyDownMethod,
+}: {
+  filteredSuggestionsArg: Array<FilterFormatType>;
+  activeSuggestionIndexArg: number;
+  onClickMethod: (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
+  onKeyDownMethod: (e: React.KeyboardEvent<HTMLInputElement | HTMLLIElement>) => void,
+}) {
+  return (
+    <ul className="suggestions">
+      {filteredSuggestionsArg.map((suggestion, index) => {
+        const classNames = index === activeSuggestionIndexArg ? 'suggestion-active' : '';
+        return (
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+          <li
+            className={classNames}
+            key={suggestion.getKey()}
+            onClick={onClickMethod}
+            onKeyDown={onKeyDownMethod}
+          >
+            {suggestion.name}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export default function FormatAutoComplete() {
   const [filteredSuggestions, setFilteredSuggestions] = useState<Array<FilterFormatType>>([]);
@@ -250,71 +281,58 @@ export default function FormatAutoComplete() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [inputText, setInputText] = useState('');
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const setChoice = (
+    filtered: Array<FilterFormatType>,
+    input: string,
+    showSuggestionsArg = false,
+  ) => {
+    setFilteredSuggestions(filtered);
+    setInputText(input);
+    setActiveSuggestionIndex(0);
+    setShowSuggestions(showSuggestionsArg);
+  };
+
+  const onChangeMethod = (e: React.ChangeEvent<HTMLInputElement>) => {
     const userInput = e.target.value;
     // Filter out suggestions that don't contain the user's input
     const unLinked: Array<FilterFormatType> = FilterFormats.filter(
-        (suggestion) => suggestion.name.toLowerCase().includes(userInput.toLowerCase())
+      (suggestion) => suggestion.name.toLowerCase().includes(userInput.toLowerCase()),
     );
-
-    setInputText(e.target.value);
-    setFilteredSuggestions(unLinked);
-    setActiveSuggestionIndex(0);
-    setShowSuggestions(true);
+    setChoice(unLinked, e.target.value, true);
   };
-  
-  const onClick = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+
+  const onClickMethod = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
     if (e.target instanceof HTMLElement) {
-      setFilteredSuggestions([]);
-      setInputText(e.target.innerText);
-      setActiveSuggestionIndex(0);
-      setShowSuggestions(false);
+      setChoice([], e.target.innerText, false);
     }
   };
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDownMethod = (e: React.KeyboardEvent<HTMLInputElement | HTMLLIElement>) => {
     if (e.target instanceof HTMLElement) {
-      if (e.key === "ArrowDown") {
+      // Handle arrow key navigation through suggestions
+      if (e.key === 'ArrowDown') {
         if (activeSuggestionIndex === filteredSuggestions.length - 1) {
           setActiveSuggestionIndex(filteredSuggestions.length - 1);
         } else {
           setActiveSuggestionIndex(activeSuggestionIndex + 1);
         }
-      } else if (e.key === "ArrowUp") {
+      } else if (e.key === 'ArrowUp') {
         if (activeSuggestionIndex === 0) {
           setActiveSuggestionIndex(0);
         } else {
           setActiveSuggestionIndex(activeSuggestionIndex - 1);
         }
-      } else if (e.key === "Enter") {
-        setFilteredSuggestions([]);
-        setInputText(filteredSuggestions[activeSuggestionIndex].name);
-        setActiveSuggestionIndex(0);
-        setShowSuggestions(false);
-      } else if (e.key === "Escape") {
+      } else if (e.key === 'Enter') {
+        setChoice([], filteredSuggestions[activeSuggestionIndex].name, false);
+      } else if (e.key === 'Escape') {
         setFilteredSuggestions([]);
         setShowSuggestions(false);
       }
+    } else if (e.currentTarget instanceof HTMLLIElement) {
+      if (e.key === 'Enter') {
+        setChoice([], e.currentTarget.innerText, false);
+      }
     }
-  };
-  
-  const FormatList = () => {
-    return filteredSuggestions.length ? (
-      <ul className="suggestions">
-        {filteredSuggestions.map((suggestion, index) => {
-          const class_name = index === activeSuggestionIndex ? "suggestion-active" : "";
-          return (
-            <li className={class_name} key={suggestion.getKey()} onClick={onClick}>
-              {suggestion.name}
-            </li>
-          );
-        })}
-      </ul>
-    ) : (
-      <div className="no-suggestions">
-        <em>No matching item type!</em>
-      </div>
-    );
   };
 
   return (
@@ -322,11 +340,29 @@ export default function FormatAutoComplete() {
       <input
         type="text"
         id="filterFormat"
-        onChange={onChange}
-        onKeyDown={onKeyDown}
+        onChange={onChangeMethod}
+        onKeyDown={onKeyDownMethod}
         value={inputText}
       />
-      {showSuggestions && inputText && <FormatList />}
+      {
+        showSuggestions
+        && inputText
+        && filteredSuggestions.length
+        && (
+        <FormatList
+          filteredSuggestionsArg={filteredSuggestions}
+          activeSuggestionIndexArg={activeSuggestionIndex}
+          onClickMethod={onClickMethod}
+          onKeyDownMethod={onKeyDownMethod}
+        />
+        )
+      }
+      {
+        showSuggestions
+        && inputText
+        && !filteredSuggestions.length
+        && <div className="no-suggestions"><em>No matching item type!</em></div>
+      }
     </>
-  )
+  );
 }
