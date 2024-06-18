@@ -1,4 +1,4 @@
-/* eslint global-require: off, no-console: off */
+/* eslint global-require: off, no-console: off, no-param-reassign: ["error", { "props": false }] */
 
 /**
  * This module executes inside of electron's main process. You can start
@@ -61,37 +61,6 @@ let mainWindow: BrowserWindow | null = null;
 let authWindow: BrowserWindow | null = null; // Window for OAuth
 const searchAxios = axios.create();
 const refreshTokenAxios = axios.create();
-
-searchAxios.interceptors.response.use(function (response) {
-  return response;
-}, async function (error) {
-  if (error.response) {
-    if ((
-      error.response.status === 403
-      && error.response.data?.Message === 'User is not authorized to access this resource with an explicit deny'
-      )
-      || error.response.status === 401
-    ){
-      console.error('Access token expired');
-      const token = await getAccessToken();
-      if (token === null) {
-        return Promise.reject(error);
-      }
-      const new_token = await refreshToken(token.refresh_token);
-      error.config.headers['Authorization'] = `Bearer ${new_token.access_token}`;
-      // Retry the original request
-      return searchAxios(error.config);
-    } else {
-      console.error(error.response.data);
-    }
-  } else {
-    console.error(error);
-  }
-  // Any status codes that falls outside the range of 2xx cause this function to trigger
-  // Do something with response error
-  return Promise.reject(error);
-});
-
 
 // Handle javascript source maps in production
 if (process.env.NODE_ENV === 'production') {
@@ -322,10 +291,11 @@ const getAccessToken = async (doLogin: boolean = false): Promise<TokenType | nul
   } if (Date.parse(token.expires_at) > Date.now()) {
     return token;
   } if (Date.parse(token.refresh_token_expires_at) > Date.now()) {
-    return await refreshToken(token.refresh_token).catch((error) => {
+    const newToken = await refreshToken(token.refresh_token).catch((error) => {
       console.error(error);
       return null;
     });
+    return newToken;
   }
   if (doLogin) {
     createAuthWindow();
@@ -346,6 +316,36 @@ const isLoggedIn = async (doLogin: boolean = false): Promise<boolean> => {
   }
   return true;
 };
+
+/**
+ * Setup Axios interceptors.
+ */
+searchAxios.interceptors.response.use((response) => response, async (error) => {
+  if (error.response) {
+    if ((
+      error.response.status === 403
+      && error.response.data?.Message === 'User is not authorized to access this resource with an explicit deny'
+    )
+      || error.response.status === 401
+    ) {
+      console.error('Access token expired');
+      const token = await getAccessToken();
+      if (token === null) {
+        return Promise.reject(error);
+      }
+      const newToken = await refreshToken(token.refresh_token);
+      error.config.headers.Authorization = `Bearer ${newToken.access_token}`;
+      // Retry the original request
+      return searchAxios(error.config);
+    }
+    console.error(error.response.data);
+  } else {
+    console.error(error);
+  }
+  // Any status codes that falls outside the range of 2xx cause this function to trigger
+  // Do something with response error
+  return Promise.reject(error);
+});
 
 /**
  * Do a WorldCat search using the OCLC Discovery API.

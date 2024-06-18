@@ -14,7 +14,9 @@ module.exports = {
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'error',
     "dot-notation": "off",
-    "@typescript-eslint/dot-notation": "error"
+    "@typescript-eslint/dot-notation": "error",
+    "no-return-await": "off",
+    "@typescript-eslint/return-await": "error"
   },
   parserOptions: {
     ecmaVersion: 2022,
