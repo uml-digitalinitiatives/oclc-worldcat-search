@@ -59,6 +59,39 @@ const OCLC_BIB_HOLDINGS_URL = `${OCLC_SEARCH_URL}/bibs-holdings`;
 
 let mainWindow: BrowserWindow | null = null;
 let authWindow: BrowserWindow | null = null; // Window for OAuth
+const searchAxios = axios.create();
+const refreshTokenAxios = axios.create();
+
+searchAxios.interceptors.response.use(function (response) {
+  return response;
+}, async function (error) {
+  if (error.response) {
+    if ((
+      error.response.status === 403
+      && error.response.data?.Message === 'User is not authorized to access this resource with an explicit deny'
+      )
+      || error.response.status === 401
+    ){
+      console.error('Access token expired');
+      const token = await getAccessToken();
+      if (token === null) {
+        return Promise.reject(error);
+      }
+      const new_token = await refreshToken(token.refresh_token);
+      error.config.headers['Authorization'] = `Bearer ${new_token.access_token}`;
+      // Retry the original request
+      return searchAxios(error.config);
+    } else {
+      console.error(error.response.data);
+    }
+  } else {
+    console.error(error);
+  }
+  // Any status codes that falls outside the range of 2xx cause this function to trigger
+  // Do something with response error
+  return Promise.reject(error);
+});
+
 
 // Handle javascript source maps in production
 if (process.env.NODE_ENV === 'production') {
@@ -259,13 +292,14 @@ const refreshToken = async (refresh_token: string): Promise<TokenType> => {
     refresh_token,
     client_id: APP_CLIENT_WSKEY,
   };
-  return axios.post(OAUTH_ACCESS_TOKEN_URL.toString(), null, {
+  return refreshTokenAxios.post(OAUTH_ACCESS_TOKEN_URL.toString(), null, {
     params,
     headers: {
       Accept: 'application/json',
     },
   }).then((response) => {
     if (response.status === 200) {
+      store.set(OCLC_OAUTH_ACCESS_TOKEN_ARG, response.data);
       return response.data;
     }
     throw new Error(`Error refreshing token: ${response.statusText}`);
@@ -288,10 +322,7 @@ const getAccessToken = async (doLogin: boolean = false): Promise<TokenType | nul
   } if (Date.parse(token.expires_at) > Date.now()) {
     return token;
   } if (Date.parse(token.refresh_token_expires_at) > Date.now()) {
-    return refreshToken(token.refresh_token).then((new_token) => {
-      store.set(OCLC_OAUTH_ACCESS_TOKEN_ARG, new_token);
-      return new_token;
-    }).catch((error) => {
+    return await refreshToken(token.refresh_token).catch((error) => {
       console.error(error);
       return null;
     });
@@ -330,7 +361,7 @@ const doSearch = async (query: string) => {
 
   const dq: DiscoveryQuery = DiscoveryQuery.fromJSON(query);
 
-  return axios.get(OCLC_BIB_HOLDINGS_URL, {
+  return searchAxios.get(OCLC_BIB_HOLDINGS_URL, {
     headers: {
       Authorization: `Bearer ${token.access_token}`,
       Accept: 'application/json',

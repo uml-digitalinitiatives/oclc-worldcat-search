@@ -240,6 +240,10 @@
       "repo": "oclc-worldcat-search"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uml-digitalinitiatives/oclc-worldcat-search"
+  },
   "devEngines": {
     "node": ">=14.x",
     "npm": ">=7.x"
