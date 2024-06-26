@@ -151,7 +151,7 @@ export default class MenuBuilder {
         { label: 'Bring All to Front', selector: 'arrangeInFront:' },
       ],
     };
-    
+
     const subMenuHelp: MenuItemConstructorOptions = {
       label: 'Help',
       submenu: [
