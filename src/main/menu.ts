@@ -13,6 +13,8 @@ interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
 
+  private logDir = app.getPath('logs');
+
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
   }
@@ -149,11 +151,12 @@ export default class MenuBuilder {
         { label: 'Bring All to Front', selector: 'arrangeInFront:' },
       ],
     };
+    
     const subMenuHelp: MenuItemConstructorOptions = {
       label: 'Help',
       submenu: [
         {
-          label: 'More to come...',
+          label: `Log Directory: ${this.logDir}`,
           click() {},
         },
       ],
@@ -231,7 +234,7 @@ export default class MenuBuilder {
         label: 'Help',
         submenu: [
           {
-            label: 'More to come...',
+            label: `Log Directory: ${this.logDir}`,
             click() {},
           },
         ],

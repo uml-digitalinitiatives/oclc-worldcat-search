@@ -16,7 +16,7 @@ import log from 'electron-log';
 import ElectronStore from 'electron-store';
 import axios from 'axios';
 import { createFileRoute } from 'electron-router-dom';
-import { updateElectronApp } from 'update-electron-app';
+import { autoUpdater } from 'electron-updater';
 import * as XLSX from 'xlsx';
 import MenuBuilder from './menu';
 import { challengeFromVerifier, generateRandomString, resolveHtmlPath } from './util';
@@ -24,6 +24,26 @@ import { BriefRecordInterface, DiscoveryQuery } from '../renderer/interfaces/ocl
 import { TokenType } from './constants_types';
 
 const fs = require('fs');
+
+export default class AppUpdater {
+  private logger: log.ElectronLog;
+
+  constructor() {
+    this.logger = log.create('anotherInstance');
+    this.logger.transports.file.level = 'debug';
+    this.logger.transports.file.resolvePath = () => path.join(app.getPath('logs'), 'updater.log');
+    autoUpdater.logger = this.logger;
+    autoUpdater.autoDownload = true;
+    autoUpdater.on('checking-for-update', () => {
+      this.logger.info('Checking for update...');
+    });
+
+    autoUpdater.on('error', (err) => {
+      this.logger.error(`AppUpdater Error in auto-updater: ${err.message}`);
+    });
+    autoUpdater.checkForUpdatesAndNotify();
+  }
+}
 
 const Store = require('electron-store');
 
@@ -146,7 +166,7 @@ const createWindow = async () => {
   });
 
   // App auto-updater
-  updateElectronApp();
+  new AppUpdater(); // eslint-disable-line no-new
 };
 
 /**
