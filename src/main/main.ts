@@ -37,8 +37,10 @@ export default class AppUpdater {
     autoUpdater.on('error', (err) => {
       console.log(`AppUpdater Error in auto-updater: ${err.message}`);
     });
-
-    autoUpdater.checkForUpdatesAndNotify();
+    if (app.isPackaged) {
+      // Only run updates if the app is packaged
+      autoUpdater.checkForUpdatesAndNotify();
+    }
   }
 }
 
