@@ -60,7 +60,7 @@ const OAUTH_ACCESS_TOKEN_URL = new URL(OCLC_ACCESS_TOKEN_URL);
 const OCLC_SEARCH_URL = 'https://americas.discovery.api.oclc.org/worldcat/search/v2';
 const OCLC_BIB_HOLDINGS_URL = `${OCLC_SEARCH_URL}/bibs-holdings`;
 
-let mainWindow: BrowserWindow | null = null;
+let mainWindow: BrowserWindow | null = null; // Main window
 let authWindow: BrowserWindow | null = null; // Window for OAuth
 const searchAxios = axios.create();
 const refreshTokenAxios = axios.create();
@@ -129,12 +129,10 @@ const createWindow = async () => {
   });
 
   const devPath = resolveHtmlPath('index.html', '');
-  log.info(`devPath: ${devPath}`);
   const [prodPath] = createFileRoute(
     `file://${path.join('../dist/renderer/', 'index.html')}`,
     '',
   );
-  log.info(`prodPath: ${prodPath}`);
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL(devPath);
   } else {
@@ -437,7 +435,12 @@ const exportFile = async (file: string[][]): Promise<string | undefined> => new 
   },
 );
 
-const logToFile = (message: string, level: string = 'info') => {
+/**
+ *
+ * @param message The message, object, etc to log
+ * @param level The level to log at, default is 'info'
+ */
+const logToFile = (message: any, level: string = 'info') => {
   switch (level) {
     case 'error':
       log.error(message);

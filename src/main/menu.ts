@@ -3,6 +3,8 @@ import {
   Menu,
   BrowserWindow,
   MenuItemConstructorOptions,
+  dialog,
+  shell,
 } from 'electron';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
@@ -156,8 +158,10 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
-          label: `Log Directory: ${this.logDir}`,
-          click() {},
+          label: 'Open log directory',
+          click: () => {
+            shell.openPath(this.logDir);
+          },
         },
       ],
     };
@@ -234,8 +238,25 @@ export default class MenuBuilder {
         label: 'Help',
         submenu: [
           {
-            label: `Log Directory: ${this.logDir}`,
-            click() {},
+            label: 'Open log directory',
+            click: () => {
+              shell.openPath(this.logDir);
+            },
+          },
+          {
+            label: 'About',
+            click: () => {
+              dialog.showMessageBox(
+                this.mainWindow,
+                {
+                  type: 'info',
+                  title: 'About WorldCat Search',
+                  message: 'WorldCat Search',
+                  detail: `A simple WorldCat search app.\nVersion: ${app.getVersion()}`,
+                  buttons: ['OK'],
+                },
+              );
+            },
           },
         ],
       },

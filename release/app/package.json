@@ -1,6 +1,6 @@
 {
   "name": "worldcat-holdings-search-impl",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A tool to search WorldCat and retrieve bibliographic and holdings information.",
   "license": "MIT",
   "author": {

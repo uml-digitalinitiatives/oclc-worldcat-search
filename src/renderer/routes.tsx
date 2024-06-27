@@ -6,11 +6,12 @@ import BatchForm from './screens/batch';
 
 export default function AppRoutes() {
   return (
-    <MemoryRouter>
+    <MemoryRouter future={{ v7_startTransition: true }}>
       <Routes>
         <Route path="/" element={<MainScreen />} />
         <Route path="/search" element={<SearchForm />} />
         <Route path="/batch" element={<BatchForm />} />
+        <Route path="*" element={<MainScreen />} />
       </Routes>
     </MemoryRouter>
   );
