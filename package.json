@@ -1,6 +1,6 @@
 {
   "name": "worldcat-holdings-search",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A tool to search WorldCat and retrieve bibliographic and holdings information.",
   "keywords": [
     "electron",
@@ -186,7 +186,7 @@
           "x64"
         ]
       },
-      "artifactName": "${productName}-${version}-darwin-${arch}.${ext}",
+      "artifactName": "WorldCat-Search-${version}-darwin-${arch}.${ext}",
       "type": "distribution",
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
@@ -212,7 +212,8 @@
       ]
     },
     "win": {
-      "artifactName": "${productName}-${version}-win32-${arch}.${ext}",
+      "artifactName": "WorldCat-Search-${version}-win32-${arch}.${ext}",
+      "verifyUpdateCodeSignature": false,
       "target": [
         "nsis"
       ],
