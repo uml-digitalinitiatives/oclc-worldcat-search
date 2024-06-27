@@ -170,11 +170,11 @@ export default function BatchForm() {
     );
     window.electron.exportFile(outputData).then((filepath: string | undefined) => {
       if (filepath && filepath.length > 0) {
-        console.log(`File saved as ${filepath}`);
+        window.electron.writeLog(`File saved as ${filepath}`, 'info');
         setStatus({ type: 'success', message: `File saved as ${filepath}` });
       }
     }).catch((err: Error) => {
-      console.error(err.message);
+      window.electron.writeLog(err.message, 'error');
       setStatus({ type: 'error', message: err.message });
     });
   };
@@ -197,7 +197,7 @@ export default function BatchForm() {
         resolve(data);
       };
       fileReader.onerror = (error) => {
-        console.error({ error });
+        window.electron.writeLog({ error }, 'error');
         reject(error);
       };
     });
@@ -221,7 +221,7 @@ export default function BatchForm() {
         const cell = XLSXUtils.encode_cell({ c: C, r: firstRow });
         if (sheet[cell]) {
           const searchValue = sheet[cell].v;
-          console.log(`Column ${C} is ${searchValue}`);
+          window.electron.writeLog(`Column ${C} is ${searchValue}`, 'debug');
           if (searchValue.toLowerCase().includes('oclc control number')) {
             checkNumberRanges.set('oclc', { c: C, r: firstRow });
           } else if (searchValue.toLowerCase().includes('isbn')) {
@@ -242,36 +242,41 @@ export default function BatchForm() {
       let checkColumn: CellAddress;
       let checkType: string;
       const workingText = document.getElementById('workingText');
-      for (let R = firstRow + 1; R <= range.e.r; R += 1) {
-        let mmsCellValue: string = '';
-        if (MmsId !== undefined) {
-          const mmsCell = XLSXUtils.encode_cell({ c: MmsId.c, r: R });
-          if (sheet[mmsCell]) {
-            console.log(`MMS ID: ${sheet[mmsCell].v}`);
-            mmsCellValue = sheet[mmsCell].v as string;
-          }
-        }
-        for (let checkIter = 0; checkIter < checkNumberKeys.length; checkIter += 1) {
-          checkType = checkNumberKeys[checkIter];
-          checkColumn = checkNumberRanges.get(checkType) as CellAddress;
-          const cell = XLSXUtils.encode_cell({ c: checkColumn.c, r: R });
-          if (sheet[cell]) {
-            console.log(`Matching ${checkType} : searching ${sheet[cell].v}`);
-            const searchValue = sheet[cell].v;
-            const query = new DiscoveryQuery({ searchType: checkType, searchNumber: searchValue });
-            if (workingText) {
-              workingText.innerHTML = `Processing... ${R} of ${range.e.r}`;
+      try {
+        for (let R = firstRow + 1; R <= range.e.r; R += 1) {
+          let mmsCellValue: string = '';
+          if (MmsId !== undefined) {
+            const mmsCell = XLSXUtils.encode_cell({ c: MmsId.c, r: R });
+            if (sheet[mmsCell]) {
+              window.electron.writeLog(`MMS ID: ${sheet[mmsCell].v}`, 'debug');
+              mmsCellValue = sheet[mmsCell].v as string;
             }
-            window.electron.getBibHoldings(query.toJSON(), mmsCellValue).then((data) => {
-              recordsDispatch({ type: 'add', new_records: data });
-            }).catch((err) => {
-              console.error(err.message);
-              setStatus({ type: 'error', message: err.message });
-              throw err;
-            });
-            break;
+          }
+          for (let checkIter = 0; checkIter < checkNumberKeys.length; checkIter += 1) {
+            checkType = checkNumberKeys[checkIter];
+            checkColumn = checkNumberRanges.get(checkType) as CellAddress;
+            const cell = XLSXUtils.encode_cell({ c: checkColumn.c, r: R });
+            if (sheet[cell]) {
+              window.electron.writeLog(`Matching ${checkType} : searching ${sheet[cell].v}`, 'debug');
+              const searchValue = sheet[cell].v;
+              const query = new DiscoveryQuery({
+                searchType: checkType,
+                searchNumber: searchValue,
+              });
+              if (workingText) {
+                workingText.innerHTML = `Processing... ${R} of ${range.e.r}`;
+              }
+              window.electron.getBibHoldings(query.toJSON(), mmsCellValue).then((data) => {
+                recordsDispatch({ type: 'add', new_records: data });
+              });
+              break;
+            }
           }
         }
+      } catch (err: any) {
+        window.electron.writeLog(err.message, 'error');
+        setStatus({ type: 'error', message: err.message });
+        throw err;
       }
     }
   };
@@ -295,14 +300,14 @@ export default function BatchForm() {
       const uploadedFile = fileInput.files;
       if (uploadedFile && uploadedFile?.length > 0) {
         const theFile = uploadedFile[0];
-        console.log(`File uploaded is ${theFile.path}`);
+        window.electron.writeLog(`File uploaded is ${theFile.path}`, 'info');
         setWorking(true);
         importFile(theFile).then((data: WorkSheet) => {
           searchSpreadsheet(data).then(() => {
             setWorking(false);
           });
         }).catch((err) => {
-          console.error(err.message);
+          window.electron.writeLog(err.message, 'error');
           setWorking(false);
           setStatus({ type: 'error', message: err.message });
         });

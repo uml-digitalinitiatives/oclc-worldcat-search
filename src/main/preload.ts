@@ -25,6 +25,9 @@ const electronHandler = {
   logout() {
     return ipcRenderer.send('auth:logout');
   },
+  writeLog(data: any, level: string) {
+    ipcRenderer.send('log:write', data, level);
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

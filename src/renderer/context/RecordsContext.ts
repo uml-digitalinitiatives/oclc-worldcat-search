@@ -15,7 +15,7 @@ export const initialRecordsContextState = {
 };
 
 export function appRecordsReducer(state: RecordsSchema, action: RecordsActionSchema) {
-  console.log({ state, new_records: action.new_records, type: action.type });
+  window.electron.writeLog({ state, new_records: action.new_records, type: action.type }, 'debug');
   if (action === undefined) {
     return state;
   }

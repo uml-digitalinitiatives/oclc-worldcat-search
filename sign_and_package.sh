@@ -18,10 +18,13 @@ fi
 source "./$CODE_CONFIG"
 
 IS_DEVEL=0
+IS_DEBUG=0
 
 if [ $# -gt 0 ]; then
  if [ "$1" == "devel" ]; then
    IS_DEVEL=1
+ elif [ "$1" == "debug" ]; then
+   IS_DEBUG=1
  fi
 fi
 
@@ -53,6 +56,9 @@ done
 if [ $IS_DEVEL -eq 1 ]; then
   echo "npx electron-builder build --mac --win --publish never"
   npx electron-builder build --mac --win --publish never
+elif [ $IS_DEBUG -eq 1 ]; then
+  echo "DEBUG_PROD=true npm run package-all"
+  DEBUG_PROD=true npm run package-all
 else
   echo "npm run package-all"
   npm run package-all

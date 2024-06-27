@@ -15,13 +15,12 @@ function LoginCheck(
   const login = async () => {
     window.electron.login().then(() => {
       window.electron.isLoggedIn().then((code) => {
-        console.log(code);
         setAuthState(code as boolean);
       }).catch((err) => {
-        console.error(err.message);
+        window.electron.writeLog(err.message, 'error');
       });
     }).catch((err) => {
-      console.error(err.message);
+      window.electron.writeLog(err.message, 'error');
     });
   };
 
@@ -49,10 +48,9 @@ function LoginCheck(
 export default function MainScreen() {
   const [authState, setAuthState] = useState<boolean>(false);
   window.electron.isLoggedIn().then((code) => {
-    console.log(code);
     setAuthState(code);
   }).catch((err) => {
-    console.error(err.message);
+    window.electron.writeLog(err.message, 'error');
   });
 
   return (

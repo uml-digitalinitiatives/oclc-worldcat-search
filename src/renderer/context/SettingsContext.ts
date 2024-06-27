@@ -30,7 +30,7 @@ export const AppSettingsDispatchContext = createContext<React.Dispatch<SettingsA
 );
 
 export const appSettingsReducer = (state: SettingsSchema, action: SettingsActionSchema) => {
-  console.log({ state, value: action.value, type: action.type });
+  window.electron.writeLog({ state, value: action.value, type: action.type }, 'debug');
   switch (action.type) {
     case 'set_searchType': {
       return { ...state, search: { ...state.search, searchType: action.value as string } };

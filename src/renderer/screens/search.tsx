@@ -163,7 +163,7 @@ export default function SearchForm() {
       if (searchNumber) {
         setStatus({ type: '', message: '' });
         setSearchNumber(searchNumber);
-        console.log(`Searching for ${searchNumberType} : ${searchNumber}`);
+        window.electron.writeLog(`Searching for ${searchNumberType} : ${searchNumber}`, 'info');
         setWorking(true);
         const query = new DiscoveryQuery({ searchNumber, searchType: searchNumberType });
         if (searchFormat) {
@@ -174,7 +174,7 @@ export default function SearchForm() {
           recordsDispatch({ type: 'set', new_records: data });
           setWorking(false);
         }).catch((err) => {
-          console.error(err.message);
+          window.electron.writeLog(err.message, 'error');
           setWorking(false);
           setStatus({ type: 'error', message: err.message });
         });

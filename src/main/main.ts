@@ -437,6 +437,23 @@ const exportFile = async (file: string[][]): Promise<string | undefined> => new 
   },
 );
 
+const logToFile = (message: string, level: string = 'info') => {
+  switch (level) {
+    case 'error':
+      log.error(message);
+      break;
+    case 'warn':
+      log.warn(message);
+      break;
+    case 'debug':
+      log.debug(message);
+      break;
+    default:
+      log.info(message);
+      break;
+  }
+};
+
 /**
  * Add event listeners...
  */
@@ -480,6 +497,11 @@ app
     ipcMain.on('auth:logout', async (): Promise<void> => {
       store.delete(OCLC_OAUTH_ACCESS_TOKEN_ARG);
     });
+    ipcMain.handle('log:write', async (
+      event, // eslint-disable-line no-unused-vars
+      logMessage: any,
+      logLevel: string,
+    ): Promise<void> => logToFile(logMessage, logLevel));
 
     setupLog();
 
