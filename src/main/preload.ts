@@ -20,13 +20,16 @@ const electronHandler = {
     return ipcRenderer.invoke('auth:isLoggedIn');
   },
   login() {
-    return ipcRenderer.invoke('auth:login');
+    return ipcRenderer.send('auth:login');
   },
   logout() {
     return ipcRenderer.send('auth:logout');
   },
   writeLog(data: any, level: string) {
     ipcRenderer.send('log:write', data, level);
+  },
+  onTokenReceived(callback: (token: boolean) => void) {
+    ipcRenderer.on('token:received', (_, token) => callback(token));
   },
 };
 

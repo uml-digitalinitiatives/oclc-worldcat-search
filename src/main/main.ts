@@ -10,7 +10,7 @@
  */
 import path from 'path';
 import {
-  app, BrowserWindow, shell, ipcMain, dialog,
+  app, BrowserWindow, ipcMain, dialog, session,
 } from 'electron';
 import log from 'electron-log';
 import ElectronStore from 'electron-store';
@@ -122,6 +122,8 @@ const createWindow = async () => {
     useContentSize: true,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -157,12 +159,6 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
-  mainWindow.webContents.setWindowOpenHandler((edata) => {
-    shell.openExternal(edata.url);
-    return { action: 'deny' };
-  });
-
   // App auto-updater
   new AppUpdater(); // eslint-disable-line no-new
 };
@@ -177,6 +173,7 @@ const createAuthWindow = async () => {
   authWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: false,
+      contextIsolation: true,
     },
   });
 
@@ -238,6 +235,7 @@ const createAuthWindow = async () => {
           access_token: response.data.access_token,
           expires_at: response.data.expires_at,
         });
+        mainWindow?.webContents.send('token:received', true);
       } else {
         console.error(`Error getting access token: ${response.statusText}`);
       }
@@ -246,6 +244,15 @@ const createAuthWindow = async () => {
       if (error.response) {
         console.error(error.response.data);
       }
+    });
+  });
+  webRequest.onHeadersReceived((details, callback) => {
+    // Set C-S-P header to allow inline scripts
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': ['default-src \'self\'; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' https://umanitoba.ca/'],
+      },
     });
   });
   authWindow?.loadURL(OAUTH_PKCE_LOGIN_URL.toString());
@@ -457,6 +464,23 @@ const logToFile = (message: any, level: string = 'info') => {
   }
 };
 
+const initializeSession = () => {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    // Set C-S-P header to allow inline scripts
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': ['default-src \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\''],
+      },
+    });
+  });
+
+  // Denies the permissions request, we don't need permissions.
+  session
+    .fromPartition('worldcat-search-partition')
+    .setPermissionRequestHandler((webContents, permission, callback) => callback(false));
+};
+
 /**
  * Add event listeners...
  */
@@ -469,30 +493,40 @@ app.on('window-all-closed', () => {
   }
 });
 
+app.on('web-contents-created', (event, contents) => {
+  contents.on('will-navigate', (internalEvent, navigationUrl) => {
+    // Restrict what external URLs we will navigate to
+    const parsedUrl = new URL(navigationUrl);
+
+    if (
+      parsedUrl.origin !== 'https://oauth.oclc.org'
+      && parsedUrl.origin !== 'https://authn.sd04.worldcat.org'
+      && parsedUrl.origin !== 'https://universityofmanitoba.authn.worldcat.org'
+    ) {
+      internalEvent.preventDefault();
+    }
+  });
+});
+
 /**
  * When ready actions.
  */
 app
   .whenReady()
   .then(() => {
-    ipcMain.on('store:set', async (event, key, value) => { // eslint-disable-line no-unused-vars
+    initializeSession();
+    ipcMain.on('store:set', async (_, key, value) => {
       await store.set(key, value);
     });
-    ipcMain.handle('store:get', async (
-      event, // eslint-disable-line no-unused-vars
-      key,
-    ) => store.get(key));
-    ipcMain.handle('file:export', async (
-      event, // eslint-disable-line no-unused-vars
-      file: string[][],
-    ): Promise<string | undefined> => exportFile(file));
+    ipcMain.handle('store:get', async (_, key) => store.get(key));
+    ipcMain.handle('file:export', async (_, file: string[][]): Promise<string | undefined> => exportFile(file));
     ipcMain.handle('oclc:getBibHoldings', async (
-      event, // eslint-disable-line no-unused-vars
+      _,
       query: string,
       mmsId: string = '',
     ) => isLoggedIn(true).then(() => getBibHoldings(query, mmsId)));
     ipcMain.handle('auth:isLoggedIn', async (): Promise<boolean> => isLoggedIn());
-    ipcMain.handle('auth:login', async (): Promise<void> => {
+    ipcMain.on('auth:login', async (): Promise<void> => {
       if (await isLoggedIn(true) === false) {
         createAuthWindow();
       }
@@ -501,7 +535,7 @@ app
       store.delete(OCLC_OAUTH_ACCESS_TOKEN_ARG);
     });
     ipcMain.handle('log:write', async (
-      event, // eslint-disable-line no-unused-vars
+      _,
       logMessage: any,
       logLevel: string,
     ): Promise<void> => logToFile(logMessage, logLevel));

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Navigation from './navigation';
 
 /**
@@ -13,15 +13,7 @@ function LoginCheck(
    * Do the login to OCLC via Oauth
    */
   const login = async () => {
-    window.electron.login().then(() => {
-      window.electron.isLoggedIn().then((code) => {
-        setAuthState(code as boolean);
-      }).catch((err) => {
-        window.electron.writeLog(err.message, 'error');
-      });
-    }).catch((err) => {
-      window.electron.writeLog(err.message, 'error');
-    });
+    window.electron.login();
   };
 
   /**
@@ -47,11 +39,16 @@ function LoginCheck(
 
 export default function MainScreen() {
   const [authState, setAuthState] = useState<boolean>(false);
-  window.electron.isLoggedIn().then((code) => {
-    setAuthState(code);
-  }).catch((err) => {
-    window.electron.writeLog(err.message, 'error');
-  });
+  useEffect(() => {
+    window.electron.isLoggedIn().then((code) => {
+      setAuthState(code);
+    }).catch((err) => {
+      window.electron.writeLog(err.message, 'error');
+    });
+    window.electron.onTokenReceived((token) => {
+      setAuthState(token);
+    });
+  }, []);
 
   return (
     <main>
