@@ -1,6 +1,6 @@
 {
   "name": "worldcat-holdings-search",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A tool to search WorldCat and retrieve bibliographic and holdings information.",
   "keywords": [
     "electron",

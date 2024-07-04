@@ -127,6 +127,7 @@ const createWindow = async () => {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
+      disableBlinkFeatures: 'Auxclick',
     },
   });
 
@@ -156,6 +157,10 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
+  mainWindow.webContents.setWindowOpenHandler(() => {
+    return { action: 'deny'}
+  });
+
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
@@ -174,6 +179,7 @@ const createAuthWindow = async () => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      disableBlinkFeatures: 'Auxclick',
     },
   });
 
@@ -254,6 +260,9 @@ const createAuthWindow = async () => {
         'Content-Security-Policy': ['default-src \'self\'; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' https://umanitoba.ca/'],
       },
     });
+  });
+  authWindow.webContents.setWindowOpenHandler(() => {
+    return { action: 'deny'}
   });
   authWindow?.loadURL(OAUTH_PKCE_LOGIN_URL.toString());
 };
