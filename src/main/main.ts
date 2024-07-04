@@ -157,9 +157,7 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
-  mainWindow.webContents.setWindowOpenHandler(() => {
-    return { action: 'deny'}
-  });
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
@@ -261,9 +259,7 @@ const createAuthWindow = async () => {
       },
     });
   });
-  authWindow.webContents.setWindowOpenHandler(() => {
-    return { action: 'deny'}
-  });
+  authWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   authWindow?.loadURL(OAUTH_PKCE_LOGIN_URL.toString());
 };
 
